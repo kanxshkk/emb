@@ -1,0 +1,390 @@
+DEPARTMENT OF APPLIED MATHEMATICS AND COMPUTATIONAL SCIENCES
+MSc SOFTWARE SYSTEMS - (III Sem 2022-23)
+20XW37 – Embedded systems Lab
+Problem Sheet 6
+
+ 
+1.Write  an  ALP  to  add  two  single  digits  and  display  the  result  with  appropriate messages. 
+org 100h
+
+include 'emu8086.inc'
+
+.model small
+
+.stack 100
+
+.data
+
+    str1 db 'enter num 1 ','$'
+
+    str2 db 'enter num 2 ','$'
+
+    msg db 'sum of num 1 and num 2 is : ','$'
+
+.code
+
+main proc 
+
+    mov ax,@data
+
+    mov ds,ax
+
+    mov es,ax
+
+    mov dx,offset str1
+
+    mov ah,09h
+
+    int 21h
+
+    call scan_num
+
+    printn
+
+    mov bx,cx
+
+    mov dx,offset str2
+
+    mov ah,09h
+
+    int 21h
+
+    call scan_num
+
+    printn
+
+    add bx,cx
+
+    mov dx,offset msg
+
+    mov ah,09h
+
+    int 21h
+
+    mov ax,bx
+
+    call print_num
+
+main endp
+
+define_print_num
+
+define_print_num_uns
+
+define_scan_num
+
+2.Write an ALP to convert a string in lower case letter entered through the keyboard to a string in UPPER CASE and print it on the screen. 
+
+org 100h
+
+INCLUDE 'EMU8086.INC'
+
+.MODEL SMALL
+
+.STACK 100
+
+.DATA	 
+
+	STR1 DB 'hello world','$'
+
+	STR2 DB 'HELLO WORLD','$'
+
+    
+
+.CODE
+
+MAIN PROC
+
+	MOV AX,@DATA
+
+	MOV DS,AX
+
+    
+
+	PRINT 'ENTER THE COUNT VALUE : '
+
+	CALL SCAN_NUM
+
+    	 
+
+	MOV SI,0
+
+    
+
+	UPPER: MOV AL,STR1[SI]
+
+       	SUB AL,20H
+
+       	MOV STR1[SI],AL
+
+       	INC SI
+
+       	LOOP UPPER
+
+    
+
+       	 
+
+	PRINTN
+
+    
+
+	MOV DX,OFFSET STR1
+
+	MOV AH,09H
+
+	INT 21H
+
+ 	 
+
+	PRINTN
+        	 
+
+MAIN ENDP
+
+DEFINE_PRINT_NUM_UNS
+
+DEFINE_PRINT_NUM
+
+DEFINE_SCAN_NUM
+
+ret
+3.  Write an ALP to  move  the cursor right,  left, up or down correspondingly  with  the arrow keys pressed. 
+	org 100h
+
+mov dh, 0
+mov dl, 0
+
+menu:
+    mov ah, 00h
+    int 16h
+
+    cmp ah, 48h   
+    je up
+
+    cmp ah, 50h   
+    je down
+
+    cmp ah, 4Dh   
+    je right
+
+    cmp ah, 4Bh   
+    je left
+
+    jmp exit
+
+up:
+    mov ah, 3  
+    int 10h
+
+    mov ah, 2  ;Move cursor Up
+    sub dh, 1  ;dh is row(row is -1 now,so moves up)
+    int 10h
+
+    jmp menu
+
+down:
+    mov ah, 3  
+    int 10h
+
+    mov ah, 2  ;Move cursor Down
+    add dh, 1  ;(row is 1 now,so moves down)
+    int 10h
+
+    jmp menu
+
+right:
+    mov ah, 3  
+    int 10h
+
+    mov ah, 2  ;Move cursor Right
+    add dl, 1  ;dl is column(column is 1 now,so moves right)
+    int 10h
+
+    jmp menu
+
+left:
+    mov ah, 3 
+    int 10h
+
+    mov ah, 2  ;Move cursor Left
+    sub dl, 1  ;(column is -1 now,so moves left)
+    int 10h
+
+    jmp menu
+
+exit: 
+
+
+ret
+4.  Write a program in Assembly language that will display the message “ Key” every time a key is pressed. 
+	org 100h
+start:
+  mov ah,00
+  int 16h
+  cmp ah,01
+  je exit
+key:
+  mov ah,09h
+  lea dx,msg1
+  int 21h
+  jmp start
+ 
+exit:
+  mov ah,00
+  int 21h
+msg1 db 'KEY$'
+ret
+	
+5.  Write an ALP that will determine it two numbers ( 0-9) are pressed in sequence. A sequence could be 1-2 or 8-9 etc., the program will display the message “ Sequence” if sequence numbers are pressed else ” not sequence”  
+		org 100h
+
+mov ah,1
+int 21h
+
+mov bl,al
+
+mov dh, 0
+mov dl, 1
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov ah,1
+int 21h
+
+cmp bl,al
+jl case1
+
+
+jmp else
+
+case1: add bl,1 
+       
+       cmp bl,al
+       
+       je sequence
+       
+       jmp else
+       
+
+sequence:   mov al, 1
+            mov bh, 0
+            mov bl, 0011_1011b
+            mov cx, msg1end - offset msg1 ; calculate message size.
+            mov dh,10
+            mov dl,20
+            push cs
+            pop es
+            mov bp, offset msg1
+            mov ah, 13h
+            int 10h
+            jmp msg1end
+            msg1 db "Sequence"
+            msg1end:
+            jmp exit  
+            
+                 
+else:       mov al, 1
+            mov bh, 0
+            mov bl, 0011_1011b
+            mov cx, msg2end - offset msg2 ; calculate message size.
+            mov dh,10
+            mov dl,30
+            push cs
+            pop es
+            mov bp, offset msg2
+            mov ah, 13h
+            int 10h
+            jmp msg2end
+            msg2 db "Not a Sequence"
+            msg2end:   
+            jmp exit
+
+exit:ret
+		
+6.  Write an ALP to display” Hello,Welcome”on the centre of the screen after the key H is pressed.
+	org 100h
+mov ah,00h
+int 16h
+cmp ah,23h
+je case1
+cmp ah,23h
+jne exit 
+
+case1:  mov dh, 100
+        mov dl, 50
+        mov bh, 0
+        mov ah, 2
+        int 10h
+        mov al, 1
+        mov bl, 0011_1011b
+        mov cx, msg1end - offset msg1 ; calculate message size.
+        push cs
+        pop es
+        mov bp, offset msg1
+        mov ah, 13h
+        int 10h
+        jmp msg1end
+         msg1 db "Hello,Welcome "
+         msg1end:
+
+exit:ret 
+7.  Write an ALP to make the screen flying with different colored pixels ( or with any special  characters  like  @  .,  or  *)  continuously  in  the  following  context. 
+On pressing a character like R, G or B, the different symbols or characters should fly 
+on the screen. 
+	org 100h
+
+mov ah,00h
+int 16h
+cmp ah,13h
+je case1
+cmp ah,30h
+je case2
+cmp ah,22h
+je case3
+
+jmp else
+
+
+case1:  mov al, 13h
+        mov ah, 0
+        int 10h ; set graphics video mode.
+        mov al, 1100b
+        mov cx, 10
+        mov dx, 20
+        mov ah, 0ch
+        int 10h 
+        
+        jmp else 
+        
+case2:   mov al, 13h
+        mov ah, 0
+        int 10h ; set graphics video mode.
+        mov al, 1001b
+        mov cx, 10
+        mov dx, 20
+        mov ah, 0ch
+        int 10h 
+        
+        jmp else
+                
+case3:  mov al, 13h
+        mov ah, 0
+        int 10h ; set graphics video mode.
+        mov al, 1010b
+        mov cx, 10
+        mov dx, 20
+        mov ah, 0ch
+        int 10h
+        
+        jmp else 
+
+else:  ret                         
+
+8.  Draw on the screen a series of four concentric rectangles made of character *, with the gap of 1 blank space in all directions. Have the program terminated on the press of the key q. 
+		
+9. Write a program to display the bits of a register or memory location. Use the INT 21H interrupts to display data on the display monitor     For example, if AL = 55h, then your program must display  AL = 01010101
+	
+
+Note: Please refer to the material uploaded in the Nucleus portal 
