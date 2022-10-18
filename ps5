@@ -1,0 +1,232 @@
+EMBEDDED SYSTEMS
+
+PS-5
+
+1.Write a procedure to find a factorial of a number.
+
+org 100h
+include emu8086.inc
+
+mov dx, 0
+print &amp;#39;Enter the number:&amp;#39;
+call scan_num
+mov bx, cx
+mov ax, bx
+dec bx
+
+start:
+cmp bx,0
+je end
+mul bx
+dec bx
+jmp start
+
+end:
+printn
+print &amp;#39;The factorial is: &amp;#39;
+call print_num
+
+sum db ?
+ret
+define_scan_num
+define_print_num
+define_print_num_uns
+
+2. Write a program to transpose two 4x4 arrays. The algorithm to transpose the arrays is 
+for i := 0 to 3 do 
+for j := 0 to 3 do begin 
+temp := A [i,j]; 
+A [i,j] := B [j,i]; 
+B [j,i] := temp; 
+end;
+Write a main program that calls a transpose procedure. The main program should read the A array
+values from the user and print the A and B arrays after computing the transpose of A and placing the
+result in B.
+include &#39;emu8086.inc&#39;
+org 100h
+
+mov bx,1000h
+print &#39;enter the string:&#39;
+mov ax,0
+start:
+printn
+call scan_num
+mov [bx],cx
+inc bx
+inc ax
+cmp ax,16
+je end
+
+jmp start
+end:
+mov si,1000h
+mov bp,2000h
+mov cx,0
+mov bx,0
+mov dx,0h
+call TRANSPOSE
+printn
+
+ret
+define_scan_num
+
+TRANSPOSE PROC
+step1:
+cmp dx,16
+je end1
+mov ax,[si+bx]
+mov [bp],ax
+inc bp
+add bx,4
+inc cx
+inc dx
+cmp cx,4
+je step2:
+jmp step1
+
+step2:
+
+cmp dx,15
+je end1
+mov bx,0
+mov cx,0
+inc si
+jmp step1
+
+end1:
+ret
+TRANSPOSE ENDP
+
+3.) Write an x86 code for procedure called switch that takes two (integer) parameters and swaps them.
+Write the code that implements a procedure call and the procedure. Pass the parameters on the stack.
+
+`include emu8086.inc
+org 100h
+print &amp;#39;Enter the First number: &amp;#39;
+call scan_num
+mov ax, cx
+printn
+print &amp;#39;Enter the Second number: &amp;#39;
+call scan_num
+mov bx, cx
+push ax
+push bx
+call switch
+pop ax
+pop bx
+printn
+
+print &amp;#39;Value in num1 after swapping: &amp;#39;
+call print_num
+printn
+print &amp;#39;Value in num2 after swapping: &amp;#39;
+mov ax, bx
+call print_num
+PROC switch
+pop cx
+pop dx
+push dx
+push cx
+endp
+num1 dw ?
+
+num2 dw ?
+ret
+define_scan_num
+define_print_num
+define_print_num_uns
+
+Write a SubStr () procedure that extracts a substring from a zero terminated string. Pass a pointer
+to the string in DS:SI, a pointer to the destination string in ES:DI, the starting position in the
+string in AX, and the length of the substring in CX. 
+include &#39;emu8086.inc&#39;
+
+org 100h
+
+mov DI,1000h
+mov dx,10
+MOV BX,1
+print &#39;Enter a string:&#39;
+call get_string
+printn
+
+print &#39;Enter the starting index :&#39;
+call scan_num
+mov ax,cx
+printn
+
+print &#39;Enter the length of substring = &#39;
+CALL SCAN_NUM
+
+MOV SI,1000h
+mov DI,2000H
+
+call substr
+MOV SI,2000H
+PRINTN
+CALL PRINT_STRING
+
+ret
+
+define_print_string
+define_get_string
+DEFINE_SCAN_NUM
+DEFINE_PRINT_NUM
+
+DEFINE_PRINT_NUM_UNS
+
+substr proc
+START:
+CMP BX,AX
+JE ENDL
+INC SI
+INC BX
+JMP START
+ENDL:
+MOV AX,[SI]
+MOV [DI],AX
+INC DI
+INC SI
+LOOP ENDL
+RET
+ENDP
+
+5. Write a strncpy routine that behaves like strcpy except it copies a maximum of n characters 
+(including the zero terminating byte). Pass the source string’s address in es:di, the destination 
+string’s address in dx:si, and the maximum length in cx.
+
+include &#39;emu8086.inc&#39;
+org 100h
+mov DI,1000h
+mov dx,10
+MOV BX,1
+
+print &#39;Enter a string:&#39;
+ 
+call get_string
+printn
+print &#39;Enter the length of substring = &#39; 
+ 
+CALL SCAN_NUM
+sub cx,1
+MOV SI,1000h
+mov DI,2000H
+call substr
+MOV SI,2000H
+PRINTN
+CALL PRINT_STRING
+ret
+define_print_string
+define_get_string
+DEFINE_SCAN_NUM
+DEFINE_PRINT_NUM
+DEFINE_PRINT_NUM_UNS
+substr proc
+    START:
+        MOV AX,[SI]
+        MOV [DI],AX
+        INC DI
+        INC SI
+        LOOP start
+        RET 
+ENDP
